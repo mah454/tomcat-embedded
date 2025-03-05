@@ -9,16 +9,22 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ContainerInitializer implements ServletContainerInitializer {
+public class EmbeddedServletContainerInitializer implements ServletContainerInitializer {
     @Override
     public void onStartup(Set<Class<?>> classes, ServletContext ctx) {
         for (Class<?> servletClass : classes) {
-            WebServlet webServletAnnotation = servletClass.getDeclaredAnnotation(WebServlet.class);
-            String name = extractServletName(servletClass, webServletAnnotation);
-            String[] urlPatterns = extractUrlPattern(webServletAnnotation);
-            Servlet servlet = createServletInstance(servletClass);
-            ctx.addServlet(name, servlet).addMapping(urlPatterns);
+            if (Servlet.class.isAssignableFrom(servletClass)) {
+                registerServlet(ctx, servletClass);
+            }
         }
+    }
+
+    private static void registerServlet(ServletContext ctx, Class<?> servletClass) {
+        WebServlet webServletAnnotation = servletClass.getDeclaredAnnotation(WebServlet.class);
+        String name = extractServletName(servletClass, webServletAnnotation);
+        String[] urlPatterns = extractUrlPattern(webServletAnnotation);
+        Servlet servlet = createServletInstance(servletClass);
+        ctx.addServlet(name, servlet).addMapping(urlPatterns);
     }
 
     private static String[] extractUrlPattern(WebServlet webServletAnnotation) {
@@ -29,7 +35,7 @@ public class ContainerInitializer implements ServletContainerInitializer {
     }
 
     private static String extractServletName(Class<?> servletClass, WebServlet webServletAnnotation) {
-        return  !webServletAnnotation.name().isEmpty() ? webServletAnnotation.name() : servletClass.getSimpleName();
+        return !webServletAnnotation.name().isEmpty() ? webServletAnnotation.name() : servletClass.getSimpleName();
     }
 
     private static Servlet createServletInstance(Class<?> servletClass) {

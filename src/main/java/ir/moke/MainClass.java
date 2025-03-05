@@ -1,5 +1,7 @@
 package ir.moke;
 
+import ir.moke.filter.CORSFilter;
+import ir.moke.filter.SampleFilter;
 import ir.moke.servlet.SampleServlet;
 import ir.moke.ws.SampleWebSocket;
 import org.apache.catalina.startup.Tomcat;
@@ -35,7 +37,10 @@ public class MainClass {
         context.addServletContainerInitializer(new WsSci(), new HashSet<>(List.of(SampleWebSocket.class)));
 
         // add servlets
-        context.addServletContainerInitializer(new ContainerInitializer(), Set.of(SampleServlet.class));
+        context.addServletContainerInitializer(new EmbeddedServletContainerInitializer(), Set.of(SampleServlet.class));
+
+        // add filters
+        context.addServletContainerInitializer(new EmbeddedFilterContainerInitializer(), Set.of(SampleFilter.class, CORSFilter.class));
 
         tomcat.start();
         System.out.println("Tomcat startup is completed, listening to port 8080");
