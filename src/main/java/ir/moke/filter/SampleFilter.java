@@ -9,7 +9,7 @@ import java.io.IOException;
 public class SampleFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        System.out.println("Filter executed");
+        System.out.println("Sample Filter Executed");
         chain.doFilter(request, response);
     }
 }
