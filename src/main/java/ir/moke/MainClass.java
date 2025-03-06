@@ -39,7 +39,10 @@ public class MainClass {
         // add servlets
         context.addServletContainerInitializer(new EmbeddedServletContainerInitializer(), Set.of(SampleServlet.class));
 
-        // add filters
+        /*
+         * add filters
+         * Note : Filter could be ordered by @WebFilter#filterName method
+         * */
         context.addServletContainerInitializer(new EmbeddedFilterContainerInitializer(), Set.of(SampleFilter.class, CORSFilter.class));
 
         tomcat.start();
