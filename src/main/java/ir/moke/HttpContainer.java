@@ -86,11 +86,11 @@ public class HttpContainer {
         String keystoreAliasName = "tomcat-embedded";
 
         // generated with keytool
-        Path keystoreFile = Path.of("/tmp/keystore.jks");
+
+        Path keystoreFile = Path.of("/tmp/application.keystore");
 
         // Generate pkcs12 keystore programmatically if jks does not exist
         if (!Files.exists(keystoreFile)) {
-            keystoreFile = Path.of("/tmp/keystore.pkcs12");
             KeystoreUtils.createPKCS12(keystoreFile, keystorePassword, keystoreAliasName, null);
         }
         SSLHostConfig sslHostConfig = new SSLHostConfig();
