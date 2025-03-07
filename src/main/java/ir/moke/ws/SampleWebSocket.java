@@ -2,9 +2,7 @@ package ir.moke.ws;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
+import org.apache.tomcat.websocket.WsSession;
 
 @ServerEndpoint("/ws")
 public class SampleWebSocket {
@@ -17,11 +15,9 @@ public class SampleWebSocket {
 
     @OnMessage
     public void onMessage(String s) {
-        try {
-            System.out.println("Receive : " + s);
-            session.getBasicRemote().sendText(LocalDateTime.now() + " Server response");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        System.out.println("Receive : " + s.trim());
+        if (s.trim().equals("quit") || s.trim().equals("exit")) {
+            fullCloseConnection();
         }
     }
 
@@ -33,5 +29,12 @@ public class SampleWebSocket {
     @OnError
     public void onError(Throwable throwable) {
         System.out.println("Error : " + throwable.getMessage());
+    }
+
+    private void fullCloseConnection() {
+        /* If you want socket completely closed */
+        WsSession wsSession = (WsSession) session;
+        CloseReason reason = new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Close Socket");
+        wsSession.doClose(reason, reason, true);
     }
 }
