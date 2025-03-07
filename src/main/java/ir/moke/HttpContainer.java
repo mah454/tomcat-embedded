@@ -4,7 +4,13 @@ import ir.moke.filter.CORSFilter;
 import ir.moke.filter.SampleFilter;
 import ir.moke.servlet.SampleServlet;
 import ir.moke.ws.SampleWebSocket;
+import org.apache.catalina.Context;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.descriptor.web.SecurityCollection;
+import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
+import org.apache.tomcat.util.net.SSLHostConfig;
+import org.apache.tomcat.util.net.SSLHostConfigCertificate;
 import org.apache.tomcat.websocket.server.WsSci;
 
 import java.io.IOException;
@@ -27,12 +33,12 @@ public class HttpContainer {
 
     public static void start() {
         try {
-
             var tomcat = new Tomcat();
-            tomcat.setPort(8080);
-            tomcat.getConnector().setProperty("address", "0.0.0.0");
+            tomcat.setConnector(createHttpConnector());
+            tomcat.setConnector(createHttpsConnector());
 
             var context = tomcat.addWebapp(contextPath, baseDir);
+            addSecurityConstraint(context);
 
             // add websockets
             context.addServletContainerInitializer(new WsSci(), new HashSet<>(List.of(SampleWebSocket.class)));
@@ -47,10 +53,63 @@ public class HttpContainer {
             context.addServletContainerInitializer(new EmbeddedFilterContainerInitializer(), Set.of(SampleFilter.class, CORSFilter.class));
 
             tomcat.start();
-            System.out.println("Tomcat startup is completed, listening to port 8080");
             tomcat.getServer().await();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Connector createHttpConnector() {
+        System.out.println("HTTP connector is ready, listening to port 8080");
+        Connector connector = new Connector();
+        connector.setProperty("address", "0.0.0.0");
+        connector.setPort(8080);
+        connector.setRedirectPort(8443);
+        return connector;
+    }
+
+    public static Connector createHttpsConnector() {
+        System.out.println("HTTPS connector is ready, listening to port 8443");
+        SSLHostConfig sslHostConfig = getSslHostConfig();
+        Connector connector = new Connector();
+        connector.setPort(8443);
+        connector.setSecure(true);
+        connector.setScheme("https");
+        connector.setProperty("SSLEnabled", "true");
+        connector.addSslHostConfig(sslHostConfig);
+
+        return connector;
+    }
+
+    private static SSLHostConfig getSslHostConfig() {
+        String keystorePassword = "tompass";
+        String keystoreAliasName = "tomcat-embedded";
+
+        // generated with keytool
+        Path keystoreFile = Path.of("/tmp/keystore.jks");
+
+        // Generate pkcs12 keystore programmatically if jks does not exist
+        if (!Files.exists(keystoreFile)) {
+            keystoreFile = Path.of("/tmp/keystore.pkcs12");
+            KeystoreUtils.createPKCS12(keystoreFile, keystorePassword, keystoreAliasName, null);
+        }
+        SSLHostConfig sslHostConfig = new SSLHostConfig();
+        SSLHostConfigCertificate certificate = new SSLHostConfigCertificate(sslHostConfig, SSLHostConfigCertificate.Type.RSA);
+        certificate.setCertificateKeystoreFile(keystoreFile.toFile().getAbsolutePath());
+        certificate.setCertificateKeystorePassword(keystorePassword);
+        certificate.setCertificateKeyAlias(keystoreAliasName);
+        sslHostConfig.addCertificate(certificate);
+        return sslHostConfig;
+    }
+
+    private static void addSecurityConstraint(Context context) {
+        SecurityConstraint securityConstraint = new SecurityConstraint();
+        SecurityCollection collection = new SecurityCollection();
+        collection.addPattern("/*");
+        securityConstraint.addCollection(collection);
+
+        // Enforce HTTPS
+        securityConstraint.setUserConstraint("CONFIDENTIAL");
+        context.addConstraint(securityConstraint);
     }
 }
