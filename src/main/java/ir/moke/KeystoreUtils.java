@@ -11,19 +11,16 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.nio.file.Path;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class KeystoreUtils {
-
+    private static final Provider BC_PROVIDER = new BouncyCastleProvider();
     static {
-        Security.addProvider(new BouncyCastleProvider());
+        Security.addProvider(BC_PROVIDER);
     }
 
     public static void createPKCS12(Path keystorePath, String keystorePassword, String alias, char[] keyPassword) {
@@ -59,12 +56,12 @@ public class KeystoreUtils {
         Date startDate = new Date(now);
         Date expiryDate = new Date(now + TimeUnit.DAYS.toMillis(365)); // Valid for 1 year
 
-        X500Name dnName = new X500Name("CN=localhost, O=MyCompany, C=US");
+        X500Name dnName = new X500Name("CN=localhost, O=moke.ir, C=IR");
         BigInteger serialNumber = BigInteger.valueOf(now); // Unique serial number
 
         // Create Certificate
         X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(dnName, serialNumber, startDate, expiryDate, dnName, keyPair.getPublic());
         ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA").build(keyPair.getPrivate());
-        return new JcaX509CertificateConverter().setProvider("BC").getCertificate(certBuilder.build(signer));
+        return new JcaX509CertificateConverter().setProvider(BC_PROVIDER).getCertificate(certBuilder.build(signer));
     }
 }
