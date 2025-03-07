@@ -85,7 +85,7 @@ public class HttpContainer {
         String keystorePassword = "tompass";
         String keystoreAliasName = "tomcat-embedded";
 
-        // generated with keytool
+        // by default generated with keytool (see README.md)
         Path keystoreFile = Path.of("/tmp/application.keystore");
 
         // Generate pkcs12 keystore programmatically if jks does not exist
