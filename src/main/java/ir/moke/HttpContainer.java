@@ -3,7 +3,7 @@ package ir.moke;
 import ir.moke.filter.CORSFilter;
 import ir.moke.filter.TestFilter;
 import ir.moke.servlet.TestServlet;
-import ir.moke.ws.testWebSocket;
+import ir.moke.ws.TestWebSocket;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
@@ -41,7 +41,7 @@ public class HttpContainer {
             addSecurityConstraint(context);
 
             // add websockets
-            context.addServletContainerInitializer(new WsSci(), new HashSet<>(List.of(testWebSocket.class)));
+            context.addServletContainerInitializer(new WsSci(), new HashSet<>(List.of(TestWebSocket.class)));
 
             // add servlets
             context.addServletContainerInitializer(new EmbeddedServletContainerInitializer(), Set.of(TestServlet.class));

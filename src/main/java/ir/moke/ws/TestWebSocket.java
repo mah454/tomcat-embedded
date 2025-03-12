@@ -5,7 +5,7 @@ import jakarta.websocket.server.ServerEndpoint;
 import org.apache.tomcat.websocket.WsSession;
 
 @ServerEndpoint("/ws/test")
-public class testWebSocket {
+public class TestWebSocket {
     private Session session;
 
     @OnOpen
