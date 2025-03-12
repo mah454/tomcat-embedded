@@ -5,8 +5,8 @@ import jakarta.servlet.annotation.WebFilter;
 
 import java.io.IOException;
 
-@WebFilter("/sample")
-public class SampleFilter implements Filter {
+@WebFilter("/api/test")
+public class TestFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         System.out.println("Sample Filter Executed");

@@ -1,9 +1,9 @@
 package ir.moke;
 
 import ir.moke.filter.CORSFilter;
-import ir.moke.filter.SampleFilter;
-import ir.moke.servlet.SampleServlet;
-import ir.moke.ws.SampleWebSocket;
+import ir.moke.filter.TestFilter;
+import ir.moke.servlet.TestServlet;
+import ir.moke.ws.testWebSocket;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
@@ -41,16 +41,16 @@ public class HttpContainer {
             addSecurityConstraint(context);
 
             // add websockets
-            context.addServletContainerInitializer(new WsSci(), new HashSet<>(List.of(SampleWebSocket.class)));
+            context.addServletContainerInitializer(new WsSci(), new HashSet<>(List.of(testWebSocket.class)));
 
             // add servlets
-            context.addServletContainerInitializer(new EmbeddedServletContainerInitializer(), Set.of(SampleServlet.class));
+            context.addServletContainerInitializer(new EmbeddedServletContainerInitializer(), Set.of(TestServlet.class));
 
             /*
              * add filters
              * Note : Filter could be ordered by @WebFilter#filterName method
              * */
-            context.addServletContainerInitializer(new EmbeddedFilterContainerInitializer(), Set.of(SampleFilter.class, CORSFilter.class));
+            context.addServletContainerInitializer(new EmbeddedFilterContainerInitializer(), Set.of(TestFilter.class, CORSFilter.class));
 
             tomcat.start();
             tomcat.getServer().await();

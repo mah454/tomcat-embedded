@@ -9,7 +9,7 @@ import org.apache.catalina.filters.CorsFilter;
 
 import java.io.IOException;
 
-@WebFilter("/*")
+@WebFilter("/api/*")
 public class CORSFilter extends CorsFilter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
